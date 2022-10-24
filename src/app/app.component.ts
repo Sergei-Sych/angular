@@ -20,6 +20,7 @@ import { MockDataService } from './mock-data.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
+
 export class AppComponent implements OnInit, OnDestroy {
   searchTermByCharacters = new Subject<string>();
   charactersResults$: Observable<any>;
@@ -49,7 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // 3. Add debounce to prevent API calls until user stop typing.
 
     this.charactersResults$ = this.searchTermByCharacters.pipe(
-      debounceTime(100),
+      debounceTime(1000),
       filter((inputValue) => inputValue.length >= 3),
       map((inputValue) => {
         console.log(`CharactertResult ${inputValue}`);
@@ -64,7 +65,7 @@ export class AppComponent implements OnInit, OnDestroy {
     //Your code should looks like this:
 
     this.planetAndCharactersResults$ = this.searchTermByCharacters.pipe(
-      debounceTime(100),
+      debounceTime(2000),
       filter((inputValue) => inputValue.length >= 3),
       switchMap((inputValue) => {
         console.log(`PlanetAndCharactersResulr ${inputValue}`);
