@@ -10,8 +10,10 @@ import {
   Subscription,
   switchMap,
   debounceTime,
+  reduce,
   tap,
   pipe,
+  pairwise,
 } from 'rxjs';
 import { MockDataService } from './mock-data.service';
 
@@ -52,12 +54,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.charactersResults$ = this.searchTermByCharacters.pipe(
       debounceTime(1000),
       filter((inputValue) => inputValue.length >= 3),
-      map((inputValue) => {
+      switchMap((inputValue) => {
         console.log(`CharactertResult ${inputValue}`);
         return this.mockDataService.getCharacters(inputValue);
       })
     );
-    this.charactersResults$.subscribe();
   }
 
   loadCharactersAndPlanet(): void {
@@ -72,10 +73,13 @@ export class AppComponent implements OnInit, OnDestroy {
         return forkJoin([
           this.mockDataService.getCharacters(inputValue),
           this.mockDataService.getPlatents(inputValue),
-        ]);
+        ]).pipe(
+          reduce((acc, arr) => {
+            return [...acc, ...arr];
+          }, [])
+        );
       })
     );
-    this.planetAndCharactersResults$.subscribe();
   }
 
   initLoadingState(): void {
@@ -94,7 +98,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.searchTermByCharacters.complete();
+    this.searchTermByCharacters.unsubscribe();
     // 5.2 Unsubscribe from all subscriptions
     // YOUR CODE STARTS HERE
     // YOUR CODE ENDS HERE
